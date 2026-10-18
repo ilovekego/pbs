@@ -7,3 +7,4 @@ requests==2.31.0
 itsdangerous==2.1.2
 python-dotenv==1.0.1
 resend==0.8.0
+gunicorn==21.2.0
