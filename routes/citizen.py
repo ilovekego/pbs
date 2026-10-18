@@ -101,6 +101,7 @@ def mwananchi_ai_chat():
 
     ai_response = services.ask_mwananchi_groq_ai(user_prompt, chat_history=chat_history, user_context=user_context)
 
+    # 1. ACTION: REGISTER GUEST ACCOUNT
     reg_match = re.search(r'\[ACTION:REGISTER_USER\Vert{}(.*?)\Vert{}(.*?)\Vert{}(.*?)\Vert{}(.*?)\Vert{}(.*?)\Vert{}(.*?)\Vert{}(.*?)\]', ai_response)
     if reg_match:
         fn, em, nid, ph, pw, con, wd = [g.strip() for g in reg_match.groups()]
@@ -117,6 +118,7 @@ def mwananchi_ai_chat():
         else:
             ai_response = re.sub(r'\[ACTION:REGISTER_USER\Vert{}.*?\]', f"\n\n**Registration Notice:** {err}", ai_response)
 
+    # 2. ACTION: CREATE SERVICE TICKET
     ticket_match = re.search(r'\[ACTION:CREATE_TICKET\Vert{}(.*?)\Vert{}(.*?)\Vert{}(.*?)\]', ai_response)
     if ticket_match:
         cat_code, location, desc = [g.strip() for g in ticket_match.groups()]
@@ -144,6 +146,7 @@ def mwananchi_ai_chat():
                 msg = "\n\nUnable to match department category."
         ai_response = re.sub(r'\[ACTION:CREATE_TICKET\Vert{}.*?\]', msg, ai_response)
 
+    # 3. ACTION: APPLY BUSINESS PERMIT
     permit_match = re.search(r'\[ACTION:APPLY_PERMIT\Vert{}(.*?)\Vert{}(.*?)\Vert{}(.*?)\]', ai_response)
     if permit_match:
         b_name, b_type, b_loc = [g.strip() for g in permit_match.groups()]
@@ -154,6 +157,7 @@ def mwananchi_ai_chat():
             msg = "\n\nI can submit your Single Business Permit application! Let us create your account first. What is your full name?"
         ai_response = re.sub(r'\[ACTION:APPLY_PERMIT\Vert{}.*?\]', msg, ai_response)
 
+    # 4. ACTION: APPLY BURSARY
     bursary_match = re.search(r'\[ACTION:APPLY_BURSARY\Vert{}(.*?)\Vert{}(.*?)\Vert{}(.*?)\]', ai_response)
     if bursary_match:
         s_name, inst, amt = [g.strip() for g in bursary_match.groups()]
