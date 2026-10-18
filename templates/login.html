@@ -1,68 +1,42 @@
 {% extends "base.html" %}
-{% block title %}Account Login - Murang'a County Portal{% endblock %}
+{% block title %}Sign In - Murang'a County Portal{% endblock %}
 
 {% block content %}
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-md-6 col-lg-5">
-            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-                <div class="card-header bg-navy text-white text-center py-4">
-                    <i class="fa-solid fa-right-to-bracket fs-2 mb-2"></i>
-                    <h4 class="fw-bold mb-0">Citizen Portal Login</h4>
-                    <p class="text-white-50 fs-8 mb-0">Murang'a County Public Service Board</p>
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="card-header bg-navy text-white text-center p-4">
+                    <i class="fa-solid fa-user-lock fs-1 text-warning mb-2"></i>
+                    <h4 class="fw-bold mb-0">Citizen Sign In</h4>
+                    <small class="text-white-50">Murang'a County Public Services Portal</small>
                 </div>
-                <div class="card-body p-4 p-md-5">
-                    <form method="POST" action="{{ url_for('auth.login') }}" id="loginForm">
-                        
-                        <!-- Login Identifier -->
+                <div class="card-body p-4">
+                    <form method="POST" action="{{ url_for('auth.login') }}">
                         <div class="mb-3">
-                            <label class="form-label fw-bold fs-7">Email, Phone Number, or National ID <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light"><i class="fa-solid fa-user-check text-muted"></i></span>
-                                <input type="text" name="email" class="form-control" placeholder="e.g. 0712345678, name@domain.com, or ID" required>
-                            </div>
+                            <label class="form-label fw-bold fs-7">Identifier (Email, National ID, or Phone)</label>
+                            <input type="text" name="email" class="form-control fs-7" placeholder="Enter email, ID, or phone number" required autocomplete="username">
                         </div>
 
-                        <!-- Password Field -->
                         <div class="mb-3">
                             <div class="d-flex justify-content-between align-items-center mb-1">
-                                <label class="form-label fw-bold fs-7 mb-0">Password <span class="text-danger">*</span></label>
-                                <a href="{{ url_for('auth.forgot_password') }}" class="fs-8 text-primary fw-semibold text-decoration-none">
-                                    Forgot Password?
-                                </a>
+                                <label class="form-label fw-bold fs-7 mb-0">Password</label>
+                                <a href="{{ url_for('auth.forgot_password') }}" class="fs-8 text-primary text-decoration-none">Forgot Password?</a>
                             </div>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light"><i class="fa-solid fa-lock text-muted"></i></span>
-                                <input type="password" name="password" class="form-control" placeholder="Enter password" required>
-                            </div>
+                            <input type="password" name="password" class="form-control fs-7" placeholder="Enter account password" required autocomplete="current-password">
                         </div>
 
-                        <!-- Invisible reCAPTCHA Button -->
-                        <button type="submit" 
-                                id="loginBtn"
-                                class="btn btn-navy text-white w-100 py-2 rounded-3 fw-bold mt-3 g-recaptcha"
-                                data-sitekey="6LeU_fQtAAAAAEYiT7FYAEDEzCN6tavggwAgpm2M"
-                                data-callback="onSubmitLogin"
-                                data-action="login">
-                            <i class="fa-solid fa-right-to-bracket me-1"></i> Log In
+                        <button type="submit" class="btn btn-navy fw-bold w-100 py-2 rounded-3 fs-7 mb-3">
+                            <i class="fa-solid fa-right-to-bracket me-1"></i> Sign In
                         </button>
                     </form>
 
-                    <div class="text-center mt-4 fs-7">
-                        <span class="text-muted">Don't have an account?</span>
-                        <a href="{{ url_for('auth.register') }}" class="fw-bold text-primary text-decoration-none ms-1">Register Citizen Account</a>
+                    <div class="text-center border-top pt-3 fs-7 text-muted">
+                        Don't have an account yet? <a href="{{ url_for('auth.register') }}" class="fw-bold text-navy text-decoration-none">Register Here</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
-<script>
-function onSubmitLogin(token) {
-    document.getElementById('loginForm').submit();
-}
-</script>
 {% endblock %}
