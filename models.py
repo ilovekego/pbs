@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -28,7 +28,7 @@ class User(UserMixin, db.Model):
     national_id = db.Column(db.String(20), unique=True, nullable=False)
     phone = db.Column(db.String(20), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
-    role = db.Column(db.String(20), default='citizen')  # 'citizen' or 'admin'
+    role = db.Column(db.String(20), default='citizen')
     
     phone_otp = db.Column(db.String(6), nullable=True)
     otp_expiry = db.Column(db.DateTime, nullable=True)
@@ -39,7 +39,6 @@ class User(UserMixin, db.Model):
     ward = db.Column(db.String(80), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # Relationships
     service_requests = db.relationship('ServiceRequest', backref='author', lazy=True, cascade="all, delete-orphan")
     business_permits = db.relationship('BusinessPermit', backref='applicant', lazy=True, cascade="all, delete-orphan")
     bursaries = db.relationship('BursaryApplication', backref='applicant', lazy=True, cascade="all, delete-orphan")
@@ -75,18 +74,17 @@ class ServiceRequest(db.Model):
     constituency = db.Column(db.String(80), nullable=False)
     ward = db.Column(db.String(80), nullable=False)
     specific_location = db.Column(db.String(200), nullable=False)
-    priority = db.Column(db.String(20), default='Medium')  # Low, Medium, High, Critical
+    priority = db.Column(db.String(20), default='Medium')
     description = db.Column(db.Text, nullable=False)
     image_filename = db.Column(db.String(255), nullable=True)
 
-    status = db.Column(db.String(20), default='Pending')  # Pending, In Progress, Resolved, Closed
+    status = db.Column(db.String(20), default='Pending')
     admin_notes = db.Column(db.Text, nullable=True)
-    rating = db.Column(db.Integer, nullable=True)  # 1 to 5 scale
+    rating = db.Column(db.Integer, nullable=True)
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    # Two-way Thread Messages
     thread_comments = db.relationship('TicketComment', backref='ticket', lazy=True, cascade="all, delete-orphan", order_by="TicketComment.created_at.asc()")
 
     @property
@@ -117,7 +115,7 @@ class BusinessPermit(db.Model):
     business_type = db.Column(db.String(100), nullable=False)
     location = db.Column(db.String(150), nullable=False)
     fee_amount = db.Column(db.Float, default=5000.0)
-    status = db.Column(db.String(20), default='Under Review')  # Under Review, Approved, Issued, Rejected
+    status = db.Column(db.String(20), default='Under Review')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 
@@ -130,5 +128,5 @@ class BursaryApplication(db.Model):
     student_name = db.Column(db.String(120), nullable=False)
     institution = db.Column(db.String(150), nullable=False)
     requested_amount = db.Column(db.Float, nullable=False)
-    status = db.Column(db.String(20), default='Pending Review')  # Pending Review, Approved, Disbursed
+    status = db.Column(db.String(20), default='Pending Review')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
