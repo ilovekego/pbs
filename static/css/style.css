@@ -237,24 +237,36 @@ body.high-contrast .btn-primary {
 }
 
 /* ==========================================================================
-   MWANANCHI AI CHAT WIDGET STYLES
+   MWANANCHI AI HIGH-ATTENTION GLOWING CHAT WIDGET STYLES
    ========================================================================== */
 
-/* Floating Action Button */
+/* Floating Action Button - Attention Pulsing Pill */
 .mwananchi-fab {
     position: fixed;
     bottom: 1.5rem;
     right: 1.5rem;
     z-index: 1040;
-    width: 58px;
-    height: 58px;
-    box-shadow: 0 6px 18px rgba(0, 43, 73, 0.35);
-    transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.25s ease;
+    border: 2px solid var(--gold-accent) !important;
+    background-color: var(--navy-blue) !important;
+    animation: fab-glowing-pulse 2.2s infinite ease-in-out;
+    cursor: pointer;
 }
 
 .mwananchi-fab:hover {
-    transform: scale(1.08);
-    box-shadow: 0 8px 24px rgba(0, 43, 73, 0.45);
+    transform: scale(1.06);
+}
+
+@keyframes fab-glowing-pulse {
+    0% {
+        box-shadow: 0 0 10px rgba(255, 193, 7, 0.6), 0 6px 18px rgba(0, 43, 73, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 25px rgba(255, 193, 7, 1), 0 0 35px rgba(0, 43, 73, 0.8);
+        transform: scale(1.04);
+    }
+    100% {
+        box-shadow: 0 0 10px rgba(255, 193, 7, 0.6), 0 6px 18px rgba(0, 43, 73, 0.4);
+    }
 }
 
 /* Offcanvas Chat Drawer Container */
@@ -305,6 +317,46 @@ body.high-contrast .btn-primary {
     word-break: break-word;
 }
 
+/* GLOWING LOADING BALL ANIMATION FOR WAITING RESPONSES */
+.glowing-loader-container {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 6px;
+}
+
+.glowing-ball {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #002B49;
+    box-shadow: 0 0 8px #002B49, 0 0 12px #ffc107;
+    animation: glowing-ball-bounce 1.2s infinite ease-in-out alternate;
+}
+
+.glowing-ball-2 {
+    animation-delay: 0.25s;
+    background-color: #ffc107;
+}
+
+.glowing-ball-3 {
+    animation-delay: 0.5s;
+    background-color: #198754;
+}
+
+@keyframes glowing-ball-bounce {
+    0% {
+        transform: scale(0.5);
+        opacity: 0.3;
+        box-shadow: 0 0 2px #ffc107;
+    }
+    100% {
+        transform: scale(1.3);
+        opacity: 1;
+        box-shadow: 0 0 12px #ffc107, 0 0 20px #002B49;
+    }
+}
+
 /* Mobile Responsiveness Adjustment */
 @media (max-width: 576px) {
     .mwananchi-chat-drawer {
@@ -319,7 +371,5 @@ body.high-contrast .btn-primary {
     .mwananchi-fab {
         bottom: 1rem;
         right: 1rem;
-        width: 52px;
-        height: 52px;
     }
 }

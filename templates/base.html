@@ -205,9 +205,11 @@
         {% block content %}{% endblock %}
     </main>
 
-    <!-- FLOATING MWANANCHI AI BUTTON (VISIBLE TO ALL VISITORS) -->
-    <button type="button" class="btn btn-navy rounded-circle mwananchi-fab p-3 d-flex align-items-center justify-content-center shadow-lg" data-bs-toggle="offcanvas" data-bs-target="#mwananchiAiDrawer" title="Mwananchi AI Assistant">
-        <i class="fa-solid fa-robot fs-4 text-warning"></i>
+    <!-- HIGH-ATTENTION GLOWING MWANANCHI AI BUTTON -->
+    <button type="button" class="btn btn-navy mwananchi-fab px-3 py-2 rounded-pill d-flex align-items-center gap-2 shadow-lg" data-bs-toggle="offcanvas" data-bs-target="#mwananchiAiDrawer" title="Mwananchi AI Assistant">
+        <i class="fa-solid fa-robot fs-5 text-warning"></i>
+        <span class="fw-bold text-white fs-7 d-inline">Ask AI...</span>
+        <span class="badge bg-warning text-dark fs-8 fw-bold rounded-pill ms-1">Online</span>
     </button>
 
     <!-- MWANANCHI AI OFFCANVAS DRAWER -->
@@ -323,9 +325,18 @@
 
         const container = document.getElementById('chatContainer');
         const typingDiv = document.createElement('div');
-        typingDiv.className = 'chat-message-bot text-muted fst-italic';
+        typingDiv.className = 'chat-message-bot';
         typingDiv.id = 'typingIndicator';
-        typingDiv.textContent = 'Mwananchi AI is thinking...';
+        typingDiv.innerHTML = `
+            <div class="d-flex align-items-center">
+                <span class="fs-8 fw-semibold text-muted me-1">Mwananchi AI thinking</span>
+                <div class="glowing-loader-container">
+                    <div class="glowing-ball"></div>
+                    <div class="glowing-ball glowing-ball-2"></div>
+                    <div class="glowing-ball glowing-ball-3"></div>
+                </div>
+            </div>
+        `;
         container.appendChild(typingDiv);
         container.scrollTop = container.scrollHeight;
 
