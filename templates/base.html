@@ -105,6 +105,47 @@
         </div>
     </nav>
 
+    <!-- UNVERIFIED CREDENTIALS PERSISTENT BANNERS -->
+    {% if current_user.is_authenticated and current_user.role == 'citizen' %}
+        {% if not current_user.is_phone_verified or not current_user.is_email_verified %}
+            <div class="container-fluid px-lg-4 mt-2">
+                
+                <!-- Unverified Phone Banner -->
+                {% if not current_user.is_phone_verified %}
+                    <div class="alert alert-warning border-warning d-flex align-items-center justify-content-between rounded-3 py-2 px-3 shadow-sm mb-2" role="alert">
+                        <div class="d-flex align-items-center gap-2 fs-7">
+                            <i class="fa-solid fa-mobile-retro text-dark fs-5"></i>
+                            <div>
+                                <strong>Phone Verification Required:</strong> Verify <code>{{ current_user.phone }}</code> via SMS OTP to lodge service requests.
+                            </div>
+                        </div>
+                        <a href="{{ url_for('auth.verify_phone') }}" class="btn btn-dark btn-sm rounded-pill px-3 fw-bold fs-8">
+                            <i class="fa-solid fa-check-double me-1"></i> Enter OTP
+                        </a>
+                    </div>
+                {% endif %}
+
+                <!-- Unverified Email Banner -->
+                {% if not current_user.is_email_verified %}
+                    <div class="alert alert-info border-info d-flex align-items-center justify-content-between rounded-3 py-2 px-3 shadow-sm mb-2" role="alert">
+                        <div class="d-flex align-items-center gap-2 fs-7">
+                            <i class="fa-solid fa-envelope-open-text text-primary fs-5"></i>
+                            <div>
+                                <strong>Email Unverified:</strong> Check <code>{{ current_user.email }}</code> for your activation link.
+                            </div>
+                        </div>
+                        <form method="POST" action="{{ url_for('auth.resend_email_verification') }}">
+                            <button type="submit" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-bold fs-8">
+                                <i class="fa-solid fa-paper-plane me-1"></i> Resend Link
+                            </button>
+                        </form>
+                    </div>
+                {% endif %}
+
+            </div>
+        {% endif %}
+    {% endif %}
+
     <!-- MOBILE DRAWER -->
     <div class="offcanvas offcanvas-start mobile-drawer" tabindex="-1" id="mobileMenuDrawer">
         <div class="mobile-drawer-header">
@@ -220,8 +261,8 @@
                     <i class="fa-solid fa-robot text-warning fs-5"></i>
                 </div>
                 <div>
-                    <h6 class="fw-bold mb-0">Mwananchi AI</h6>
-                    <small class="text-white-50 fs-8">Murang'a County Virtual Assistant</small>
+                    <h6 class="fw-bold mb-0">Mwananchi AI Agent</h6>
+                    <small class="text-white-50 fs-8">Murang'a County Intelligent Action Assistant</small>
                 </div>
             </div>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
@@ -231,20 +272,20 @@
             <!-- CHAT HISTORY BOX -->
             <div class="chat-box-body p-2" id="chatContainer">
                 <div class="chat-message-bot">
-                    Jambo! I am Mwananchi AI, powered by Murang'a County Government. Ask me anything about our public services, road repairs, water issues, streetlights, or ward locations.
+                    Jambo{% if current_user.is_authenticated %} {{ current_user.full_name }}{% endif %}! I am Mwananchi AI Agent. You can ask me about county services, or tell me to lodge a service request ticket for you directly!
                 </div>
             </div>
 
             <!-- QUICK ACTION PROMPTS -->
             <div class="d-flex gap-1 overflow-x-auto py-2 mb-2">
-                <button class="btn btn-sm btn-outline-secondary rounded-pill text-nowrap fs-8" onclick="sendQuickPrompt('How do I lodge a road repair request?')">Report Road Issue</button>
+                <button class="btn btn-sm btn-outline-secondary rounded-pill text-nowrap fs-8" onclick="sendQuickPrompt('Lodge a road request for a pothole at Main Market Gate')">Lodge Ticket for Me</button>
+                <button class="btn btn-sm btn-outline-secondary rounded-pill text-nowrap fs-8" onclick="sendQuickPrompt('What is the status of my recent service requests?')">My Ticket Status</button>
                 <button class="btn btn-sm btn-outline-secondary rounded-pill text-nowrap fs-8" onclick="sendQuickPrompt('What are the 7 constituencies in Murang\'a?')">County Constituencies</button>
-                <button class="btn btn-sm btn-outline-secondary rounded-pill text-nowrap fs-8" onclick="sendQuickPrompt('How can I track my ticket status?')">Track Ticket</button>
             </div>
 
             <!-- INPUT FORM -->
             <form id="mwananchiForm" onsubmit="handleAiChatSubmit(event)" class="d-flex gap-2">
-                <input type="text" id="aiInput" class="form-control fs-7" placeholder="Type your question here..." required autocomplete="off">
+                <input type="text" id="aiInput" class="form-control fs-7" placeholder="Ask or tell Mwananchi AI to act..." required autocomplete="off">
                 <button type="submit" class="btn btn-navy px-3 rounded-3" id="aiSubmitBtn">
                     <i class="fa-solid fa-paper-plane text-warning"></i>
                 </button>
@@ -329,7 +370,7 @@
         typingDiv.id = 'typingIndicator';
         typingDiv.innerHTML = `
             <div class="d-flex align-items-center">
-                <span class="fs-8 fw-semibold text-muted me-1">Mwananchi AI thinking</span>
+                <span class="fs-8 fw-semibold text-muted me-1">Mwananchi AI Agent processing</span>
                 <div class="glowing-loader-container">
                     <div class="glowing-ball"></div>
                     <div class="glowing-ball glowing-ball-2"></div>

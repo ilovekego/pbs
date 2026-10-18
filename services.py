@@ -31,21 +31,36 @@ def generate_otp_code():
     return str(random.randint(100000, 999999))
 
 
-# Mwananchi AI Service Integration
+# Mwananchi AI Agent Service Integration
 
-def ask_mwananchi_groq_ai(user_prompt):
+def ask_mwananchi_groq_ai(user_prompt, user_context=None):
     api_endpoint = "https://api.vinniedigitalhub.co.ke/ai/gpt"
 
-    # System context instruction directing model persona to Murang'a County Government
+    # Base System Persona Context
     system_context = (
-        "You are Mwananchi AI, the official public service virtual assistant for Murang'a County Government in Kenya. "
-        "Assist citizens with questions regarding Murang'a County services (Agri-Access & Roads, Streetlight Repairs, "
-        "Water Infrastructure, Market Sanitation), 7 constituencies (Kiharu, Kangema, Mathioya, Maragua, Kandara, Gatanga, Kigumo), "
-        "35 wards, or portal ticket tracking. Provide concise, clear, and polite answers without using markdown tables or emojis. "
-        "Citizen Question: "
+        "You are Mwananchi AI, the official intelligent AI Agent for Murang'a County Government Public Service Board in Kenya. "
+        "You assist citizens with information and can execute actions like lodging service request tickets or checking status. "
+        "Murang'a County Department Categories & Codes:\n"
+        "1. Agri-Access & Roads (Code: ROADS) - Potholes, damaged feeder roads, culverts.\n"
+        "2. Streetlight Repairs (Code: LIGHTS) - High-mast lights, solar lights, dark streets.\n"
+        "3. Water Infrastructure (Code: WATER) - Burst pipes, low water pressure, sewer blockages.\n"
+        "4. Market Sanitation (Code: WASTE) - Market garbage, uncollected refuse, illegal dumps.\n"
+        "County Details: 7 Constituencies (Kiharu, Kangema, Mathioya, Maragua, Kandara, Gatanga, Kigumo) across 35 Wards.\n"
     )
 
-    full_prompt = f"{system_context}{user_prompt}"
+    if user_context and user_context.get('is_logged_in'):
+        context_str = (
+            f"Active User Info:\n"
+            f"- Name: {user_context.get('name')}\n"
+            f"- Electoral Residence: {user_context.get('ward')} Ward, {user_context.get('constituency')} Constituency\n"
+            f"- Phone Verified: {user_context.get('is_phone_verified')}\n"
+            f"- Recent Tickets: {', '.join(user_context.get('recent_tickets')) if user_context.get('recent_tickets') else 'None'}\n"
+            "Action Execution Rule: If the user explicitly asks you to lodge or submit a ticket and provides an issue description and location, "
+            "include this action tag at the end of your response: [ACTION:CREATE_TICKET|CATEGORY_CODE|SPECIFIC_LOCATION|PROBLEM_DESCRIPTION]\n"
+        )
+        system_context += context_str
+
+    full_prompt = f"{system_context}\nCitizen Query: {user_prompt}"
 
     try:
         response = requests.get(
@@ -116,7 +131,7 @@ def send_talksasa_otp(phone_number, otp_code, custom_message=None):
 
 def send_verification_email_smtp(to_email, verification_link):
     api_key = os.environ.get('RESEND_API_KEY', '')
-    sender_email = os.environ.get('MAIL_DEFAULT_SENDER', 'Murang\'a County Portal <otp@yourdomain.com>')
+    sender_email = os.environ.get('MAIL_DEFAULT_SENDER', 'Murang\'a County Portal <otp@vinniedigitalhub.co.ke>')
 
     # Safe fallback if RESEND_API_KEY is omitted in development
     if not api_key:
@@ -188,7 +203,7 @@ def send_verification_email_smtp(to_email, verification_link):
 
 def send_password_reset_email(to_email, otp_code):
     api_key = os.environ.get('RESEND_API_KEY', '')
-    sender_email = os.environ.get('MAIL_RESET_SENDER', 'Murang\'a County Portal <reset-password@yourdomain.com>')
+    sender_email = os.environ.get('MAIL_RESET_SENDER', 'Murang\'a County Portal <reset@vinniedigitalhub.co.ke>')
 
     if not api_key:
         print(f"[RESET EMAIL MOCK] API key missing in .env | To: {to_email} | OTP: {otp_code}")
@@ -367,7 +382,7 @@ def initiate_password_reset(identifier):
     sms_msg = f"We are sorry to hear that you cannot log in to your portal. Your password reset OTP is: {otp_code}. Valid for 10 minutes."
     send_talksasa_otp(user.phone, otp_code, custom_message=sms_msg)
 
-    # Dispatch Email OTP via Resend from reset-password@yourdomain.com
+    # Dispatch Email OTP via Resend from reset@vinniedigitalhub.co.ke
     send_password_reset_email(user.email, otp_code)
 
     return user, otp_code
