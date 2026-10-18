@@ -1,0 +1,237 @@
+/* ==========================================================================
+   MURANG'A COUNTY PUBLIC SERVICE PORTAL - MASTER STYLESHEET
+   ========================================================================== */
+
+/* Brand Color Palette Variables */
+:root {
+    --navy-blue: #002B49;
+    --navy-dark: #001c31;
+    --county-green: #198754;
+    --gold-accent: #ffc107;
+    --cream-bg: #f8fafc;
+    --text-dark: #1e293b;
+    --border-light: #e2e8f0;
+}
+
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: var(--text-dark);
+    background-color: #f4f6f9;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Background & Text Color Utilities */
+.bg-navy {
+    background-color: var(--navy-blue) !important;
+}
+
+.text-navy {
+    color: var(--navy-blue) !important;
+}
+
+.bg-cream-header {
+    background-color: var(--cream-bg) !important;
+}
+
+/* Custom Buttons */
+.btn-navy {
+    background-color: var(--navy-blue);
+    color: #ffffff;
+    border: none;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-navy:hover,
+.btn-navy:focus {
+    background-color: var(--navy-dark);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 43, 73, 0.3);
+}
+
+.btn-menu-pill {
+    background-color: #ffffff;
+    border: 1px solid var(--border-light);
+    border-radius: 50rem;
+    padding: 0.375rem 0.85rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--navy-blue);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Font Size Scale Helpers */
+.fs-7 {
+    font-size: 0.9rem !important;
+}
+
+.fs-8 {
+    font-size: 0.8rem !important;
+}
+
+.fw-mono {
+    font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+}
+
+/* Hover Bump Animation Effects */
+.bump-hover {
+    transition: transform 0.25s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.25s ease;
+}
+
+.bump-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Public Service Cards */
+.service-card {
+    border: 1px solid var(--border-light);
+    border-radius: 1rem;
+    background-color: #ffffff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.service-card:hover {
+    border-color: var(--navy-blue);
+}
+
+.btn-start-app {
+    color: var(--navy-blue);
+    font-weight: 700;
+    font-size: 0.825rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.6rem;
+    border-radius: 0.5rem;
+    background-color: #f1f5f9;
+    transition: background-color 0.2s ease;
+}
+
+.btn-start-app:hover {
+    background-color: #e2e8f0;
+    color: var(--navy-dark);
+}
+
+/* Mobile Side Drawer Navigation */
+.mobile-drawer {
+    width: 300px !important;
+    border: none;
+}
+
+.mobile-drawer-header {
+    background: linear-gradient(135deg, var(--navy-blue) 0%, #004070 100%);
+    padding: 2.5rem 1.5rem 1.5rem 1.5rem;
+    text-align: center;
+    position: relative;
+}
+
+.mobile-avatar-ring {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: 3px solid var(--gold-accent);
+    background-color: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    margin: 0 auto 0.75rem auto;
+}
+
+.btn-drawer-login {
+    background-color: var(--gold-accent);
+    color: var(--navy-blue);
+    font-weight: 700;
+    padding: 0.4rem 1.25rem;
+    border-radius: 50rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.drawer-nav-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.drawer-nav-item {
+    border-bottom: 1px solid var(--border-light);
+}
+
+.drawer-nav-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    color: var(--text-dark);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: background-color 0.15s ease;
+}
+
+.drawer-nav-link:hover {
+    background-color: #f8fafc;
+    color: var(--navy-blue);
+}
+
+.drawer-icon-box {
+    width: 32px;
+    height: 32px;
+    border-radius: 0.5rem;
+    background-color: rgba(25, 135, 84, 0.1);
+    color: var(--county-green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.75rem;
+}
+
+/* Toast Notifications Container */
+.toast-container-custom {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-1050;
+    max-width: 360px;
+}
+
+/* High Contrast Mode Overrides */
+body.high-contrast {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+}
+
+body.high-contrast .navbar,
+body.high-contrast .card,
+body.high-contrast .bg-navy,
+body.high-contrast .bg-cream-header,
+body.high-contrast .modal-content,
+body.high-contrast .offcanvas {
+    background-color: #121212 !important;
+    color: #ffffff !important;
+    border-color: #ffff00 !important;
+}
+
+body.high-contrast a,
+body.high-contrast .text-dark,
+body.high-contrast .text-muted,
+body.high-contrast .text-navy {
+    color: #ffff00 !important;
+}
+
+body.high-contrast .btn-navy,
+body.high-contrast .btn-warning,
+body.high-contrast .btn-primary {
+    background-color: #ffff00 !important;
+    color: #000000 !important;
+    font-weight: bold !important;
+    border: 2px solid #ffffff !important;
+}

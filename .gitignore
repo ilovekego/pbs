@@ -1,0 +1,43 @@
+# Environment variables & secrets
+.env
+.env.*
+!.env.example
+
+# Python bytecode & cache files
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+env.bak/
+venv.bak/
+
+# SQLite database files
+*.db
+*.sqlite
+*.sqlite3
+instance/
+
+# Flask uploaded media files (ignore user uploads but preserve directory)
+static/uploads/*
+!static/uploads/.gitkeep
+
+# IDE & text editor project settings
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Operating system generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# Logs
+*.log

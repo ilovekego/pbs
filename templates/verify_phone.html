@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Verify Phone - Murang'a County Portal{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-header bg-navy text-white text-center py-4">
+                    <i class="fa-solid fa-mobile-screen-button fs-2 mb-2"></i>
+                    <h4 class="fw-bold mb-0">Phone Verification</h4>
+                    <p class="text-white-50 fs-8 mb-0">TalkSasa SMS OTP Verification</p>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <p class="text-muted fs-7 mb-1">Enter the 6-digit verification code sent to:</p>
+                        <span class="badge bg-light text-dark border fs-6 px-3 py-2 fw-bold">
+                            <i class="fa-solid fa-phone text-success me-1"></i> {{ phone or 'Your Registered Phone' }}
+                        </span>
+                    </div>
+
+                    <form method="POST" action="{{ url_for('auth.verify_phone') }}">
+                        <div class="mb-4">
+                            <label class="form-label fw-bold fs-7 text-center w-100">6-Digit OTP Code</label>
+                            <input type="text" name="otp_code" class="form-control form-control-lg text-center fw-bold letter-spacing-2" maxlength="6" placeholder="000000" required autofocus>
+                        </div>
+
+                        <button type="submit" class="btn btn-navy text-white w-100 py-2 rounded-3 fw-bold mb-3">
+                            <i class="fa-solid fa-circle-check me-1"></i> Verify Phone Number
+                        </button>
+                    </form>
+
+                    <div class="text-center pt-3 border-top">
+                        <button type="button" id="resendBtn" class="btn btn-link text-decoration-none fs-7 fw-bold text-primary p-0" onclick="triggerResendOTP()" disabled>
+                            Resend SMS Code
+                        </button>
+                        <div class="fs-8 text-muted mt-1" id="timerContainer">
+                            Resend available in <span id="cooldownTimer" class="fw-bold text-dark">60</span> seconds
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let timeLeft = 60;
+const resendBtn = document.getElementById('resendBtn');
+const cooldownTimer = document.getElementById('cooldownTimer');
+const timerContainer = document.getElementById('timerContainer');
+
+function startCooldownTimer() {
+    resendBtn.disabled = true;
+    timerContainer.style.display = 'block';
+    timeLeft = 60;
+
+    const interval = setInterval(() => {
+        timeLeft--;
+        cooldownTimer.textContent = timeLeft;
+
+        if (timeLeft <= 0) {
+            clearInterval(interval);
+            resendBtn.disabled = false;
+            timerContainer.style.display = 'none';
+        }
+    }, 1000);
+}
+
+function triggerResendOTP() {
+    fetch("{{ url_for('auth.resend_otp') }}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            startCooldownTimer();
+        }
+    })
+    .catch(() => {});
+}
+
+startCooldownTimer();
+</script>
+{% endblock %}
