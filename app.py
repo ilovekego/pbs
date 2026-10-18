@@ -24,7 +24,6 @@ app = Flask(__name__)
 
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'muranga-county-portal-secret-key-2026')
 
-# Fix Heroku Postgres URL prefix compatibility for SQLAlchemy 2.0+
 db_url = os.environ.get('DATABASE_URL', 'sqlite:///database.db')
 if db_url.startswith("postgres://"):
     db_url = db_url.replace("postgres://", "postgresql://", 1)
@@ -48,7 +47,6 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
-# Register Blueprints
 from routes.auth import auth_bp
 from routes.citizen import citizen_bp
 from routes.admin import admin_bp
@@ -58,7 +56,6 @@ app.register_blueprint(citizen_bp)
 app.register_blueprint(admin_bp)
 
 
-# Ensure database tables and seed defaults exist on startup (Gunicorn & Local)
 with app.app_context():
     services.seed_database_defaults()
 
