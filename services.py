@@ -5,6 +5,7 @@ import requests
 import resend
 from datetime import datetime, timedelta
 from werkzeug.utils import secure_filename
+from sqlalchemy.exc import IntegrityError
 from models import db, User, ServiceCategory, ServiceRequest
 
 # Permitted file upload extensions
@@ -449,62 +450,71 @@ def get_admin_dashboard_metrics():
 def seed_database_defaults():
     db.create_all()
 
-    if ServiceCategory.query.count() == 0:
-        default_categories = [
-            ServiceCategory(
-                name='Agri-Access & Roads',
-                code='ROADS',
-                description='Potholes, feeder road damage, broken culverts, and mudslides.',
-                icon_class='fa-solid fa-road'
-            ),
-            ServiceCategory(
-                name='Streetlight Repairs',
-                code='LIGHTS',
-                description='High-mast floodlights, market lighting, and solar light faults.',
-                icon_class='fa-solid fa-lightbulb'
-            ),
-            ServiceCategory(
-                name='Water Infrastructure',
-                code='WATER',
-                description='Main pipe bursts, low pressure, and sewer line blockages.',
-                icon_class='fa-solid fa-droplet'
-            ),
-            ServiceCategory(
-                name='Market Sanitation',
-                code='WASTE',
-                description='Uncollected waste at market centers and illegal dumping sites.',
-                icon_class='fa-solid fa-trash-can'
+    try:
+        if ServiceCategory.query.count() == 0:
+            default_categories = [
+                ServiceCategory(
+                    name='Agri-Access & Roads',
+                    code='ROADS',
+                    description='Potholes, feeder road damage, broken culverts, and mudslides.',
+                    icon_class='fa-solid fa-road'
+                ),
+                ServiceCategory(
+                    name='Streetlight Repairs',
+                    code='LIGHTS',
+                    description='High-mast floodlights, market lighting, and solar light faults.',
+                    icon_class='fa-solid fa-lightbulb'
+                ),
+                ServiceCategory(
+                    name='Water Infrastructure',
+                    code='WATER',
+                    description='Main pipe bursts, low pressure, and sewer line blockages.',
+                    icon_class='fa-solid fa-droplet'
+                ),
+                ServiceCategory(
+                    name='Market Sanitation',
+                    code='WASTE',
+                    description='Uncollected waste at market centers and illegal dumping sites.',
+                    icon_class='fa-solid fa-trash-can'
+                )
+            ]
+            db.session.add_all(default_categories)
+            db.session.commit()
+
+        # Check for existing admin or citizen by email or phone before attempting insert
+        existing_admin = User.query.filter(
+            (User.email == 'admin@muranga.go.ke') | (User.phone == '254700000000')
+        ).first()
+
+        if not existing_admin:
+            admin = User(
+                full_name='County Director',
+                email='admin@muranga.go.ke',
+                national_id='10000000',
+                phone='254700000000',
+                is_phone_verified=True,
+                is_email_verified=True,
+                constituency='Kiharu',
+                ward='Township',
+                role='admin'
             )
-        ]
-        db.session.add_all(default_categories)
-        db.session.commit()
+            admin.set_password('AdminPass123!')
 
-    if not User.query.filter_by(email='admin@muranga.go.ke').first():
-        admin = User(
-            full_name='County Director',
-            email='admin@muranga.go.ke',
-            national_id='10000000',
-            phone='254700000000',
-            is_phone_verified=True,
-            is_email_verified=True,
-            constituency='Kiharu',
-            ward='Township',
-            role='admin'
-        )
-        admin.set_password('AdminPass123!')
+            citizen = User(
+                full_name='Jane Citizen',
+                email='jane@citizen.go.ke',
+                national_id='28394012',
+                phone='254712345678',
+                is_phone_verified=True,
+                is_email_verified=True,
+                constituency='Kiharu',
+                ward='Township',
+                role='citizen'
+            )
+            citizen.set_password('CitizenPass123!')
 
-        citizen = User(
-            full_name='Jane Citizen',
-            email='jane@citizen.go.ke',
-            national_id='28394012',
-            phone='254712345678',
-            is_phone_verified=True,
-            is_email_verified=True,
-            constituency='Kiharu',
-            ward='Township',
-            role='citizen'
-        )
-        citizen.set_password('CitizenPass123!')
-
-        db.session.add_all([admin, citizen])
-        db.session.commit()
+            db.session.add_all([admin, citizen])
+            db.session.commit()
+    except (IntegrityError, Exception) as exc:
+        db.session.rollback()
+        print(f"[SEED HANDLED] Database seeding skipped by concurrent worker: {exc}")
