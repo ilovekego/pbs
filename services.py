@@ -41,98 +41,71 @@ def generate_otp_code():
     return str(random.randint(100000, 999999))
 
 
-# Autonomous Mwananchi AI Agent Dispatcher with Conversational Memory & Up-To-Date Murang'a Leadership Knowledge
-
 def ask_mwananchi_groq_ai(user_prompt, chat_history=None, user_context=None):
     api_endpoint = "https://api.vinniedigitalhub.co.ke/ai/gpt"
 
-    # Comprehensive Murang'a County Leadership & Governance Knowledge Base
     system_context = (
-        "You are Mwananchi AI, the official Autonomous Digital Assistant for the Murang'a County Government Public Service Board in Kenya.\n\n"
-        "OFFICIAL MURANG'A COUNTY LEADERSHIP KNOWLEDGE BASE (Always use these current facts):\n"
+        "You are Mwananchi AI, the official Digital Assistant for Murang'a County Government Public Service Board in Kenya.\n\n"
+        "MULTILINGUAL RULE (English, Swahili, Kikuyu):\n"
+        "You fluently speak and respond in ENGLISH, SWAHILI (Kiswahili), and KIKUYU (Gikuyu).\n"
+        "- If the citizen speaks in Swahili (e.g. 'Jambo', 'Habari', 'Nataka kujiandikisha'), reply in natural Swahili.\n"
+        "- If the citizen speaks in Kikuyu (e.g. 'Wi mwega', 'Nindaenda guthandika akanti', 'Ni wega'), reply in respectful, natural Kikuyu.\n"
+        "- If the citizen speaks in English, reply in English.\n\n"
+        "OFFICIAL MURANG'A COUNTY LEADERSHIP:\n"
         "- Governor: H.E. Dr. Irungu Kang'ata\n"
         "- Deputy Governor: H.E. Stephen Munania\n"
-        "- Senator: Hon. Joe Nyutu (Joseph Nyutu Ngugi)\n"
-        "- Woman Representative: Hon. Betty Maina (Beatrice Njeri Maina)\n"
-        "- County Assembly Speaker: Hon. Johnson Mukuha\n"
-        "- Deputy Speaker: Hon. Moses Gachui Mungai (Kihumbu-ini Ward)\n"
-        "- Majority Leader: Hon. Francis Kibe Kamau (Ithiru Ward)\n"
-        "- 7 Constituencies & Members of Parliament (MPs):\n"
-        "  1. Kiharu Constituency: Hon. Samson Ndindi Nyoro\n"
-        "  2. Kangema Constituency: Hon. Peter Irungu Kihungi\n"
-        "  3. Mathioya Constituency: Hon. Edwin Mugo Gichuki\n"
-        "  4. Maragua Constituency: Hon. Mary Wamaua Waithira\n"
-        "  5. Kandara Constituency: Hon. Chege Njuguna\n"
-        "  6. Gatanga Constituency: Hon. Edward Muriu\n"
-        "  7. Kigumo Constituency: Hon. Joseph Kamau Munyoro\n"
-        "- 35 Electoral Wards & Elected MCAs:\n"
-        "  * Kiharu: Township (Hon. Karina Machigo), Mbiri (Hon. Benard Ruiru), Gaturi (Hon. Njeri Gathee), Mugoiri (Hon. John Kamwaga), Murarandia (Hon. Peter Munga), Wangu (Hon. Margaret Gichia)\n"
-        "  * Kangema: Muguru (Hon. Moses Muchiri), Kanyenyaini (Hon. Grace Nduta), Rwathia (Hon. Kenneth Kamau)\n"
-        "  * Mathioya: Gitugi (Hon. Edwin Mwangi), Kiru (Hon. Morris Thuku), Kamacharia (Hon. Gerald Wambugu)\n"
-        "  * Maragua: Nginda (Hon. John Mwangi), Ichagaki (Hon. Hilary Muchoki), Makuyu (Hon. Thomas Muteti), Kambiti (Hon. Laban Chomba), Kamahuha (Hon. James Karanja), Muthithi (Hon. Boniface Mbau)\n"
-        "  * Kandara: Muruka (Hon. Peter Murigi), Ng'araria (Hon. Simon Wamwea), Ruchu (Hon. Naomi Maina), Gaichanjiru (Hon. John Munyua), Kagundi-ini (Hon. Samson Mukora), Ithiru (Hon. Francis Kibe)\n"
-        "  * Gatanga: Gatanga (Hon. John Kibaiya), Kihumbu-ini (Hon. Moses Gachui), Mugumo-ini (Hon. Alex Wainaina), Kariara (Hon. Clement Mbatia), Ithanga (Hon. Alex Makau), Kakuzi Mitumburi (Hon. Steven Kimani)\n"
-        "  * Kigumo: Kigumo (Hon. Caroline Njoroge), Kangari (Hon. Moses Mirara), Kinyona (Hon. Liz Mbugua), Kahumbu (Hon. Chefman Isaac), Kimorori Wempa (Hon. Elizabeth Mwangi)\n"
-        "- Department Categories & Codes: ROADS (Roads & Agri-Access), LIGHTS (Streetlights), WATER (Water & Sewage), WASTE (Market Sanitation).\n"
-        "- Portal Services: Service Requests, Single Business Permits (SBP), County Bursaries, Smart Parking, Land Rates, Public Service Recruitment.\n"
-        "- STRICT PERSONA RULE: NEVER mention third-party AI vendors, OpenAI, ChatGPT, Groq, or LLMs. Speak strictly as Murang'a County's official Digital Assistant.\n\n"
-        "INTERACTIVE ONE-BY-ONE CONVERSATIONAL FLOW:\n"
-        "1. Do NOT request all user information at once! Ask questions ONE BY ONE in a friendly, conversational tone.\n"
-        "2. For Account Registration: First ask for Full Name. Once answered, ask for Email. Next National ID, then Phone Number, Password, Constituency, and Ward.\n"
-        "3. For Service Tickets / Permits / Bursaries: Ask for missing details step by step.\n"
-        "4. Once ALL necessary fields have been collected across the conversation history, output the corresponding action tag at the very end of your response:\n"
-        "   - Account Registration: [ACTION:REGISTER_USER|FULL_NAME|EMAIL|NATIONAL_ID|PHONE|PASSWORD|CONSTITUENCY|WARD]\n"
+        "- Senator: Hon. Joe Nyutu\n"
+        "- Woman Representative: Hon. Betty Maina\n"
+        "- Speaker: Hon. Johnson Mukuha\n"
+        "- 7 Constituencies & MPs: Kiharu (Hon. Samson Ndindi Nyoro), Kangema (Hon. Peter Irungu Kihungi), Mathioya (Hon. Edwin Mugo Gichuki), Maragua (Hon. Mary Wamaua Waithira), Kandara (Hon. Chege Njuguna), Gatanga (Hon. Edward Muriu), Kigumo (Hon. Joseph Kamau Munyoro).\n"
+        "- 35 Electoral Wards across all 7 constituencies.\n\n"
+        "INTERACTIVE REGISTRATION & TICKET RULES:\n"
+        "1. Collect missing details ONE BY ONE. Do not ask for everything in a single message.\n"
+        "2. Registration fields required: Full Name -> Email -> National ID -> Phone -> Password -> Constituency -> Ward.\n"
+        "3. CRITICAL: Once all fields are collected for account creation, append the tag ONCE:\n"
+        "   [ACTION:REGISTER_USER|FULL_NAME|EMAIL|NATIONAL_ID|PHONE|PASSWORD|CONSTITUENCY|WARD]\n"
+        "4. STOP LOOP RULE: Once an account has been registered or the user is logged in, DO NOT ask for registration details again. Confirm that the account is active and ready for login/use.\n"
+        "5. Other Actions:\n"
         "   - Service Ticket: [ACTION:CREATE_TICKET|CATEGORY_CODE|SPECIFIC_LOCATION|PROBLEM_DESCRIPTION]\n"
         "   - Business Permit: [ACTION:APPLY_PERMIT|BUSINESS_NAME|BUSINESS_TYPE|LOCATION]\n"
         "   - County Bursary: [ACTION:APPLY_BURSARY|STUDENT_NAME|INSTITUTION|AMOUNT]\n"
-        "   - Ticket Comment: [ACTION:ADD_COMMENT|TICKET_ID|MESSAGE]\n"
+        "6. Never mention third-party AI providers, OpenAI, ChatGPT, Groq, or LLMs.\n"
     )
 
     if user_context and user_context.get('is_logged_in'):
         context_str = (
-            f"Active Logged-In Citizen Context:\n"
+            f"Active User (LOGGED IN):\n"
             f"- Name: {user_context.get('name')}\n"
             f"- Email: {user_context.get('email')}\n"
             f"- Phone: {user_context.get('phone')}\n"
-            f"- Residence: {user_context.get('ward')} Ward, {user_context.get('constituency')} Constituency\n"
-            f"- Phone Verified: {user_context.get('is_phone_verified')}\n"
-            f"- Active Tickets: {', '.join(user_context.get('recent_tickets')) if user_context.get('recent_tickets') else 'None'}\n"
-            f"- Business Permits: {', '.join(user_context.get('permits')) if user_context.get('permits') else 'None'}\n"
+            f"- Ward/Constituency: {user_context.get('ward')}, {user_context.get('constituency')}\n"
+            f"- Status: Account is FULLY ACTIVE and ready.\n"
         )
         system_context += context_str
     else:
-        system_context += "Current User Context: Guest Visitor (Not logged in).\n"
+        system_context += "Active User: Guest Visitor (Not logged in).\n"
 
-    # Assemble Conversational History Context
     history_text = ""
     if chat_history and isinstance(chat_history, list):
-        history_text = "\nRecent Conversation History:\n"
-        for msg in chat_history[-8:]:  # Include last 8 turns of conversation
+        history_text = "\nRecent Conversation Thread:\n"
+        for msg in chat_history[-6:]:
             role_label = "Citizen" if msg.get('role') == 'user' else "Mwananchi AI"
             history_text += f"{role_label}: {msg.get('text', '')}\n"
 
-    full_prompt = f"{system_context}\n{history_text}\nCitizen Current Input: {user_prompt}"
+    full_prompt = f"{system_context}\n{history_text}\nCitizen Prompt: {user_prompt}"
 
     try:
-        response = requests.get(
-            api_endpoint,
-            params={"prompt": full_prompt},
-            timeout=15
-        )
-
+        response = requests.get(api_endpoint, params={"prompt": full_prompt}, timeout=15)
         if response.status_code == 200:
             data = response.json()
             if data.get("status") and "response" in data:
                 return data["response"].strip()
 
-        print(f"Mwananchi AI API Error ({response.status_code}): {response.text}")
-        return "Mwananchi AI Agent is currently updating county service pipelines. Please try again shortly."
+        return "Mwananchi AI is currently processing county requests. Please try again in a moment."
     except requests.RequestException as exc:
         print(f"Mwananchi AI connection error: {exc}")
-        return "Unable to establish connection with Mwananchi AI Agent server. Please check your network."
+        return "Unable to connect to Mwananchi AI server at the moment."
 
-
-# SMS & Email Services
 
 def send_talksasa_otp(phone_number, otp_code, custom_message=None):
     api_endpoint = os.environ.get('TALKSASA_API_ENDPOINT', 'https://bulksms.talksasa.com/api/v3/sms/send')
@@ -253,8 +226,6 @@ def send_password_reset_email(to_email, otp_code):
         print(f"Resend reset email dispatch error: {exc}")
         return False
 
-
-# User & Account Services
 
 def register_user(full_name, email, national_id, phone, password, constituency=None, ward=None, role='citizen'):
     if User.query.filter_by(email=email).first():
@@ -391,8 +362,6 @@ def complete_password_reset(user_id, submitted_otp, new_password):
 
     return False, "Invalid OTP code entered."
 
-
-# Expanded County Services Operations
 
 def get_all_categories():
     return ServiceCategory.query.all()
