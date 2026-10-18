@@ -31,6 +31,41 @@ def generate_otp_code():
     return str(random.randint(100000, 999999))
 
 
+# Mwananchi AI Service Integration
+
+def ask_mwananchi_groq_ai(user_prompt):
+    api_endpoint = "https://api.vinniedigitalhub.co.ke/ai/gpt"
+
+    # System context instruction directing model persona to Murang'a County Government
+    system_context = (
+        "You are Mwananchi AI, the official public service virtual assistant for Murang'a County Government in Kenya. "
+        "Assist citizens with questions regarding Murang'a County services (Agri-Access & Roads, Streetlight Repairs, "
+        "Water Infrastructure, Market Sanitation), 7 constituencies (Kiharu, Kangema, Mathioya, Maragua, Kandara, Gatanga, Kigumo), "
+        "35 wards, or portal ticket tracking. Provide concise, clear, and polite answers without using markdown tables or emojis. "
+        "Citizen Question: "
+    )
+
+    full_prompt = f"{system_context}{user_prompt}"
+
+    try:
+        response = requests.get(
+            api_endpoint,
+            params={"prompt": full_prompt},
+            timeout=15
+        )
+
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("status") and "response" in data:
+                return data["response"].strip()
+
+        print(f"Mwananchi AI API Error ({response.status_code}): {response.text}")
+        return "Mwananchi AI is currently processing requests. Please try again shortly."
+    except requests.RequestException as exc:
+        print(f"Mwananchi AI connection error: {exc}")
+        return "Unable to connect to Mwananchi AI server at the moment. Please check your network connection."
+
+
 # TalkSasa Bulk SMS v3 API Integration
 
 def send_talksasa_otp(phone_number, otp_code, custom_message=None):

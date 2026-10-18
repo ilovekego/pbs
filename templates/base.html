@@ -205,6 +205,51 @@
         {% block content %}{% endblock %}
     </main>
 
+    <!-- FLOATING MWANANCHI AI BUTTON (VISIBLE TO ALL VISITORS) -->
+    <button type="button" class="btn btn-navy rounded-circle mwananchi-fab p-3 d-flex align-items-center justify-content-center shadow-lg" data-bs-toggle="offcanvas" data-bs-target="#mwananchiAiDrawer" title="Mwananchi AI Assistant">
+        <i class="fa-solid fa-robot fs-4 text-warning"></i>
+    </button>
+
+    <!-- MWANANCHI AI OFFCANVAS DRAWER -->
+    <div class="offcanvas offcanvas-end mwananchi-chat-drawer border-0 shadow-lg" tabindex="-1" id="mwananchiAiDrawer">
+        <div class="offcanvas-header bg-navy text-white">
+            <div class="d-flex align-items-center gap-2">
+                <div class="p-2 bg-white bg-opacity-10 rounded-circle">
+                    <i class="fa-solid fa-robot text-warning fs-5"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold mb-0">Mwananchi AI</h6>
+                    <small class="text-white-50 fs-8">Murang'a County Virtual Assistant</small>
+                </div>
+            </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+        </div>
+
+        <div class="offcanvas-body d-flex flex-column justify-content-between p-3 bg-light">
+            <!-- CHAT HISTORY BOX -->
+            <div class="chat-box-body p-2" id="chatContainer">
+                <div class="chat-message-bot">
+                    Jambo! I am Mwananchi AI, powered by Murang'a County Government. Ask me anything about our public services, road repairs, water issues, streetlights, or ward locations.
+                </div>
+            </div>
+
+            <!-- QUICK ACTION PROMPTS -->
+            <div class="d-flex gap-1 overflow-x-auto py-2 mb-2">
+                <button class="btn btn-sm btn-outline-secondary rounded-pill text-nowrap fs-8" onclick="sendQuickPrompt('How do I lodge a road repair request?')">Report Road Issue</button>
+                <button class="btn btn-sm btn-outline-secondary rounded-pill text-nowrap fs-8" onclick="sendQuickPrompt('What are the 7 constituencies in Murang\'a?')">County Constituencies</button>
+                <button class="btn btn-sm btn-outline-secondary rounded-pill text-nowrap fs-8" onclick="sendQuickPrompt('How can I track my ticket status?')">Track Ticket</button>
+            </div>
+
+            <!-- INPUT FORM -->
+            <form id="mwananchiForm" onsubmit="handleAiChatSubmit(event)" class="d-flex gap-2">
+                <input type="text" id="aiInput" class="form-control fs-7" placeholder="Type your question here..." required autocomplete="off">
+                <button type="submit" class="btn btn-navy px-3 rounded-3" id="aiSubmitBtn">
+                    <i class="fa-solid fa-paper-plane text-warning"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
     <!-- FOOTER -->
     <footer class="bg-dark text-white text-center py-4 mt-5">
         <div class="container fs-7">
@@ -215,7 +260,7 @@
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Global Interface Engine -->
+    <!-- Global Interface Engine & Mwananchi AI Chat Engine -->
     <script>
     let currentFontScale = 100;
 
@@ -245,6 +290,70 @@
             }, 6000);
         });
     });
+
+    function formatMarkdownText(text) {
+        return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    }
+
+    function appendChatMessage(text, isUser) {
+        const container = document.getElementById('chatContainer');
+        const msgDiv = document.createElement('div');
+        msgDiv.className = isUser ? 'chat-message-user' : 'chat-message-bot';
+        
+        if (isUser) {
+            msgDiv.textContent = text;
+        } else {
+            msgDiv.innerHTML = formatMarkdownText(text);
+        }
+        
+        container.appendChild(msgDiv);
+        container.scrollTop = container.scrollHeight;
+    }
+
+    function handleAiChatSubmit(e) {
+        e.preventDefault();
+        const inputEl = document.getElementById('aiInput');
+        const submitBtn = document.getElementById('aiSubmitBtn');
+        const prompt = inputEl.value.trim();
+        if (!prompt) return;
+
+        appendChatMessage(prompt, true);
+        inputEl.value = '';
+        submitBtn.disabled = true;
+
+        const container = document.getElementById('chatContainer');
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'chat-message-bot text-muted fst-italic';
+        typingDiv.id = 'typingIndicator';
+        typingDiv.textContent = 'Mwananchi AI is thinking...';
+        container.appendChild(typingDiv);
+        container.scrollTop = container.scrollHeight;
+
+        fetch("{{ url_for('citizen.mwananchi_ai_chat') }}", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ prompt: prompt })
+        })
+        .then(res => res.json())
+        .then(data => {
+            const indicator = document.getElementById('typingIndicator');
+            if (indicator) indicator.remove();
+            appendChatMessage(data.response, false);
+        })
+        .catch(() => {
+            const indicator = document.getElementById('typingIndicator');
+            if (indicator) indicator.remove();
+            appendChatMessage("Mwananchi AI service is temporarily unavailable. Please try again.", false);
+        })
+        .finally(() => {
+            submitBtn.disabled = false;
+        });
+    }
+
+    function sendQuickPrompt(text) {
+        document.getElementById('aiInput').value = text;
+        handleAiChatSubmit(new Event('submit'));
+    }
     </script>
 
     {% block scripts %}{% endblock %}
