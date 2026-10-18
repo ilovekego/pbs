@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Ticket #{{ ticket.ticket_id }} - Discussion Thread{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            
+            <!-- TICKET SUMMARY HEADER -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-header bg-navy text-white p-4 rounded-top-4 d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="badge bg-warning text-dark mb-2 fw-bold">{{ ticket.category_rel.name }}</span>
+                        <h4 class="fw-bold mb-0">Ticket #{{ ticket.ticket_id }}</h4>
+                        <small class="text-white-50">Lodged on {{ ticket.created_at.strftime('%b %d, %Y at %H:%M') }}</small>
+                    </div>
+                    <div>
+                        <span class="badge fs-7 px-3 py-2 bg-{{ 'success' if ticket.status == 'Resolved' else ('warning text-dark' if ticket.status == 'In Progress' else 'secondary') }}">
+                            {{ ticket.status }}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-body p-4">
+                    <div class="row g-3 mb-3 fs-7">
+                        <div class="col-md-4">
+                            <strong>Constituency:</strong> {{ ticket.constituency }}
+                        </div>
+                        <div class="col-md-4">
+                            <strong>Ward:</strong> {{ ticket.ward }}
+                        </div>
+                        <div class="col-md-4">
+                            <strong>Specific Location:</strong> {{ ticket.specific_location }}
+                        </div>
+                    </div>
+                    
+                    <div class="p-3 bg-light rounded-3 border mb-3">
+                        <h6 class="fw-bold text-navy">Issue Description:</h6>
+                        <p class="mb-0 fs-7 text-dark">{{ ticket.description }}</p>
+                    </div>
+
+                    {% if ticket.image_filename %}
+                        <div class="mt-3">
+                            <h6 class="fw-bold fs-8 text-muted mb-2">Attached Photo Proof:</h6>
+                            <img src="{{ url_for('static', filename='uploads/' + ticket.image_filename) }}" class="img-fluid rounded-3 border shadow-sm" style="max-height: 250px;" alt="Attached photo">
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- TWO-WAY DISCUSSION THREAD -->
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h5 class="fw-bold text-navy mb-0">
+                        <i class="fa-solid fa-comments me-2 text-warning"></i> Two-Way Officer & Citizen Discussion Thread
+                    </h5>
+                </div>
+
+                <div class="card-body p-4">
+                    <div class="d-flex flex-column gap-3 mb-4">
+                        {% if not ticket.thread_comments %}
+                            <div class="text-center py-4 text-muted fs-7">
+                                <i class="fa-regular fa-comment-dots fs-1 mb-2 d-block"></i>
+                                No messages posted in this thread yet. Type a message below to speak directly with County Officers.
+                            </div>
+                        {% endif %}
+
+                        {% for comment in ticket.thread_comments %}
+                            <div class="p-3 rounded-3 border max-w-75 {{ 'bg-navy text-white align-self-end ms-auto' if comment.user_id == current_user.id else 'bg-light text-dark align-self-start me-auto' }}" style="max-width: 80%;">
+                                <div class="d-flex align-items-center justify-content-between gap-3 mb-1 fs-8">
+                                    <strong class="{{ 'text-warning' if comment.is_admin_reply else '' }}">
+                                        {% if comment.is_admin_reply %}
+                                            <i class="fa-solid fa-user-shield me-1"></i> County Officer (Admin)
+                                        {% else %}
+                                            <i class="fa-solid fa-user me-1"></i> {{ comment.author.full_name }}
+                                        {% endif %}
+                                    </strong>
+                                    <span class="opacity-75">{{ comment.created_at.strftime('%d %b %H:%M') }}</span>
+                                </div>
+                                <p class="mb-0 fs-7">{{ comment.message }}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- REPLY INPUT FORM -->
+                    <form method="POST" action="{{ url_for('citizen.ticket_detail', request_id=ticket.id) }}">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold fs-7">Post Reply / Query</label>
+                            <textarea name="message" class="form-control fs-7" rows="3" placeholder="Type your message to County Administrative Officers..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-navy text-white fw-bold px-4 rounded-3 fs-7">
+                            <i class="fa-solid fa-paper-plane me-1"></i> Send Reply
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

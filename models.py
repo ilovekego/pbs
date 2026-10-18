@@ -8,27 +8,29 @@ db = SQLAlchemy()
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
+
     id = db.Column(db.Integer, primary_key=True)
-    full_name = db.Column(db.String(100), nullable=False)
+    full_name = db.Column(db.String(120), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     national_id = db.Column(db.String(20), unique=True, nullable=False)
-    phone = db.Column(db.String(20), unique=True, nullable=True)
-    password_hash = db.Column(db.String(255), nullable=False)
-    role = db.Column(db.String(20), default='citizen')
-
-    # Phone & Email Verification Fields
-    phone_otp = db.Column(db.String(10), nullable=True)
+    phone = db.Column(db.String(20), unique=True, nullable=False)
+    password_hash = db.Column(db.String(256), nullable=False)
+    role = db.Column(db.String(20), default='citizen')  # 'citizen' or 'admin'
+    
+    phone_otp = db.Column(db.String(6), nullable=True)
     otp_expiry = db.Column(db.DateTime, nullable=True)
     is_phone_verified = db.Column(db.Boolean, default=False)
     is_email_verified = db.Column(db.Boolean, default=False)
-
-    # Location Fields
-    constituency = db.Column(db.String(50), nullable=True)
-    ward = db.Column(db.String(50), nullable=True)
-
+    
+    constituency = db.Column(db.String(80), nullable=True)
+    ward = db.Column(db.String(80), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    requests = db.relationship('ServiceRequest', backref='citizen', lazy=True)
+    # Relationships
+    service_requests = db.relationship('ServiceRequest', backref='author', lazy=True, cascade="all, delete-orphan")
+    business_permits = db.relationship('BusinessPermit', backref='applicant', lazy=True, cascade="all, delete-orphan")
+    bursaries = db.relationship('BursaryApplication', backref='applicant', lazy=True, cascade="all, delete-orphan")
+    comments = db.relationship('TicketComment', backref='author', lazy=True)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -39,39 +41,81 @@ class User(UserMixin, db.Model):
 
 class ServiceCategory(db.Model):
     __tablename__ = 'service_categories'
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    code = db.Column(db.String(50), unique=True, nullable=False)
+    code = db.Column(db.String(20), unique=True, nullable=False)
     description = db.Column(db.Text, nullable=False)
-    icon_class = db.Column(db.String(50), nullable=False)
+    icon_class = db.Column(db.String(50), default='fa-solid fa-gears')
 
     requests = db.relationship('ServiceRequest', backref='category_rel', lazy=True)
 
 
 class ServiceRequest(db.Model):
     __tablename__ = 'service_requests'
+
     id = db.Column(db.Integer, primary_key=True)
     ticket_id = db.Column(db.String(30), unique=True, nullable=False)
     category_id = db.Column(db.Integer, db.ForeignKey('service_categories.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
-    constituency = db.Column(db.String(50), nullable=False)
-    ward = db.Column(db.String(50), nullable=False)
-    specific_location = db.Column(db.String(150), nullable=False)
-
-    priority = db.Column(db.String(20), default='Medium')
+    constituency = db.Column(db.String(80), nullable=False)
+    ward = db.Column(db.String(80), nullable=False)
+    specific_location = db.Column(db.String(200), nullable=False)
+    priority = db.Column(db.String(20), default='Medium')  # Low, Medium, High, Critical
     description = db.Column(db.Text, nullable=False)
     image_filename = db.Column(db.String(255), nullable=True)
-    status = db.Column(db.String(20), default='Pending')
+
+    status = db.Column(db.String(20), default='Pending')  # Pending, In Progress, Resolved, Closed
     admin_notes = db.Column(db.Text, nullable=True)
-    rating = db.Column(db.Integer, nullable=True)
+    rating = db.Column(db.Integer, nullable=True)  # 1 to 5 scale
+
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    # Two-way Thread Messages
+    thread_comments = db.relationship('TicketComment', backref='ticket', lazy=True, cascade="all, delete-orphan", order_by="TicketComment.created_at.asc()")
 
     @property
     def is_overdue(self):
-        if self.status == 'Pending':
-            delta = datetime.utcnow() - self.created_at
-            return delta.total_seconds() > (48 * 3600)
+        if self.status in ['Pending', 'In Progress']:
+            return (datetime.utcnow() - self.created_at) > timedelta(hours=48)
         return False
+
+
+class TicketComment(db.Model):
+    __tablename__ = 'ticket_comments'
+
+    id = db.Column(db.Integer, primary_key=True)
+    ticket_id = db.Column(db.Integer, db.ForeignKey('service_requests.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    is_admin_reply = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class BusinessPermit(db.Model):
+    __tablename__ = 'business_permits'
+
+    id = db.Column(db.Integer, primary_key=True)
+    permit_number = db.Column(db.String(30), unique=True, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    business_name = db.Column(db.String(150), nullable=False)
+    business_type = db.Column(db.String(100), nullable=False)
+    location = db.Column(db.String(150), nullable=False)
+    fee_amount = db.Column(db.Float, default=5000.0)
+    status = db.Column(db.String(20), default='Under Review')  # Under Review, Approved, Issued, Rejected
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class BursaryApplication(db.Model):
+    __tablename__ = 'bursary_applications'
+
+    id = db.Column(db.Integer, primary_key=True)
+    application_id = db.Column(db.String(30), unique=True, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    student_name = db.Column(db.String(120), nullable=False)
+    institution = db.Column(db.String(150), nullable=False)
+    requested_amount = db.Column(db.Float, nullable=False)
+    status = db.Column(db.String(20), default='Pending Review')  # Pending Review, Approved, Disbursed
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
