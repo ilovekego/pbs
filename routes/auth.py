@@ -35,10 +35,8 @@ def register():
             flash(error, 'danger')
             return render_template('register.html')
 
-        # Log the citizen in immediately without blocking portal access
         login_user(user)
 
-        # Dispatch background SMS OTP & Verification Email
         services.send_talksasa_otp(user.phone, otp_code)
         verify_link = url_for('auth.verify_email_token', token=user.id, _external=True)
         services.send_verification_email_smtp(user.email, verify_link)
@@ -147,7 +145,6 @@ def reset_password_otp():
         otp_code = request.form.get('otp_code')
         new_password = request.form.get('new_password')
         
-        # Identify user by active OTP matching
         user = services.User.query.filter_by(phone_otp=otp_code).first()
         if user:
             success, message = services.complete_password_reset(user.id, otp_code, new_password)
