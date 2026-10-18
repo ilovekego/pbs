@@ -29,7 +29,7 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
-# Register Feature Blueprints
+# Register Blueprints
 from routes.auth import auth_bp
 from routes.citizen import citizen_bp
 from routes.admin import admin_bp
@@ -37,6 +37,11 @@ from routes.admin import admin_bp
 app.register_blueprint(auth_bp)
 app.register_blueprint(citizen_bp)
 app.register_blueprint(admin_bp)
+
+
+# Ensure database tables and seed defaults exist on startup (Gunicorn & Local)
+with app.app_context():
+    services.seed_database_defaults()
 
 
 @app.route('/')
@@ -47,6 +52,4 @@ def index():
 
 
 if __name__ == '__main__':
-    with app.app_context():
-        services.seed_database_defaults()
     app.run(debug=True, port=5000)
