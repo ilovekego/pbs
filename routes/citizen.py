@@ -101,24 +101,27 @@ def mwananchi_ai_chat():
 
     ai_response = services.ask_mwananchi_groq_ai(user_prompt, chat_history=chat_history, user_context=user_context)
 
-    # 1. ACTION: REGISTER GUEST ACCOUNT (Fired once step-by-step interview completes)
-    reg_match = re.search(r'\[ACTION:REGISTER_USER\|(.*?)\|(.*?)\|(.*?)\|(.*?)\|(.*?)\|(.*?)\|(.*?)\]', ai_response)
+    reg_match = re.search(r'\[ACTION:REGISTER_USER\Vert{}(.*?)\Vert{}(.*?)\Vert{}(.*?)\Vert{}(.*?)\Vert{}(.*?)\Vert{}(.*?)\Vert{}(.*?)\]', ai_response)
     if reg_match:
         fn, em, nid, ph, pw, con, wd = [g.strip() for g in reg_match.groups()]
         new_u, err, otp = services.register_user(fn, em, nid, ph, pw, con, wd)
         if new_u:
             login_user(new_u)
             services.send_talksasa_otp(new_u.phone, otp)
-            ai_response = re.sub(r'\[ACTION:REGISTER_USER\|.*?\]', f"\n\n**Action Executed:** Account created successfully! Welcome to the portal, **{fn}**! You are now logged in. Check your phone for your SMS verification code.", ai_response)
+            completion_msg = (
+                f"\n\n**Account Registration Complete!**\n"
+                f"Welcome, **{fn}**! Your account has been created and you are now logged in. "
+                f"An SMS verification OTP code has been sent to `{ph}`."
+            )
+            ai_response = re.sub(r'\[ACTION:REGISTER_USER\Vert{}.*?\]', completion_msg, ai_response)
         else:
-            ai_response = re.sub(r'\[ACTION:REGISTER_USER\|.*?\]', f"\n\n**Registration Notice:** {err}", ai_response)
+            ai_response = re.sub(r'\[ACTION:REGISTER_USER\Vert{}.*?\]', f"\n\n**Registration Notice:** {err}", ai_response)
 
-    # 2. ACTION: CREATE SERVICE TICKET
-    ticket_match = re.search(r'\[ACTION:CREATE_TICKET\|(.*?)\|(.*?)\|(.*?)\]', ai_response)
+    ticket_match = re.search(r'\[ACTION:CREATE_TICKET\Vert{}(.*?)\Vert{}(.*?)\Vert{}(.*?)\]', ai_response)
     if ticket_match:
         cat_code, location, desc = [g.strip() for g in ticket_match.groups()]
         if not current_user.is_authenticated:
-            msg = "\n\nI can submit this ticket for you! Let us create your account first. What is your full name?"
+            msg = "\n\nI can lodge this ticket for you! Let us set up your account first. What is your full name?"
         elif not current_user.is_phone_verified:
             msg = "\n\nI prepared your ticket, but you must verify your phone number via SMS OTP first before I can submit it."
         else:
@@ -139,21 +142,19 @@ def mwananchi_ai_chat():
                 msg = f"\n\n**Action Executed:** Service request ticket lodged! **Ticket ID: {new_req.ticket_id}**."
             else:
                 msg = "\n\nUnable to match department category."
-        ai_response = re.sub(r'\[ACTION:CREATE_TICKET\|.*?\]', msg, ai_response)
+        ai_response = re.sub(r'\[ACTION:CREATE_TICKET\Vert{}.*?\]', msg, ai_response)
 
-    # 3. ACTION: APPLY BUSINESS PERMIT
-    permit_match = re.search(r'\[ACTION:APPLY_PERMIT\|(.*?)\|(.*?)\|(.*?)\]', ai_response)
+    permit_match = re.search(r'\[ACTION:APPLY_PERMIT\Vert{}(.*?)\Vert{}(.*?)\Vert{}(.*?)\]', ai_response)
     if permit_match:
         b_name, b_type, b_loc = [g.strip() for g in permit_match.groups()]
         if current_user.is_authenticated:
             p = services.create_business_permit(current_user.id, b_name, b_type, b_loc)
             msg = f"\n\n**Action Executed:** Single Business Permit application submitted! **Permit No: {p.permit_number}**."
         else:
-            msg = "\n\nI can submit your Single Business Permit application! Let us set up your account first. What is your full name?"
-        ai_response = re.sub(r'\[ACTION:APPLY_PERMIT\|.*?\]', msg, ai_response)
+            msg = "\n\nI can submit your Single Business Permit application! Let us create your account first. What is your full name?"
+        ai_response = re.sub(r'\[ACTION:APPLY_PERMIT\Vert{}.*?\]', msg, ai_response)
 
-    # 4. ACTION: APPLY BURSARY
-    bursary_match = re.search(r'\[ACTION:APPLY_BURSARY\|(.*?)\|(.*?)\|(.*?)\]', ai_response)
+    bursary_match = re.search(r'\[ACTION:APPLY_BURSARY\Vert{}(.*?)\Vert{}(.*?)\Vert{}(.*?)\]', ai_response)
     if bursary_match:
         s_name, inst, amt = [g.strip() for g in bursary_match.groups()]
         if current_user.is_authenticated:
@@ -164,6 +165,6 @@ def mwananchi_ai_chat():
                 msg = "\n\nInvalid amount specified."
         else:
             msg = "\n\nI can submit your bursary application! Let us create your account first. What is your full name?"
-        ai_response = re.sub(r'\[ACTION:APPLY_BURSARY\|.*?\]', msg, ai_response)
+        ai_response = re.sub(r'\[ACTION:APPLY_BURSARY\Vert{}.*?\]', msg, ai_response)
 
     return jsonify({'response': ai_response})
