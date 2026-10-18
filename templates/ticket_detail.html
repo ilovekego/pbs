@@ -6,7 +6,6 @@
     <div class="row justify-content-center">
         <div class="col-lg-9">
             
-            <!-- TICKET SUMMARY HEADER -->
             <div class="card border-0 shadow-sm rounded-4 mb-4">
                 <div class="card-header bg-navy text-white p-4 rounded-top-4 d-flex justify-content-between align-items-center">
                     <div>
@@ -48,7 +47,6 @@
                 </div>
             </div>
 
-            <!-- TWO-WAY DISCUSSION THREAD -->
             <div class="card border-0 shadow-sm rounded-4">
                 <div class="card-header bg-white py-3 border-bottom">
                     <h5 class="fw-bold text-navy mb-0">
@@ -66,7 +64,7 @@
                         {% endif %}
 
                         {% for comment in ticket.thread_comments %}
-                            <div class="p-3 rounded-3 border max-w-75 {{ 'bg-navy text-white align-self-end ms-auto' if comment.user_id == current_user.id else 'bg-light text-dark align-self-start me-auto' }}" style="max-width: 80%;">
+                            <div class="p-3 rounded-3 border {{ 'bg-navy text-white align-self-end ms-auto' if comment.user_id == current_user.id else 'bg-light text-dark align-self-start me-auto' }}" style="max-width: 80%;">
                                 <div class="d-flex align-items-center justify-content-between gap-3 mb-1 fs-8">
                                     <strong class="{{ 'text-warning' if comment.is_admin_reply else '' }}">
                                         {% if comment.is_admin_reply %}
@@ -82,7 +80,6 @@
                         {% endfor %}
                     </div>
 
-                    <!-- REPLY INPUT FORM -->
                     <form method="POST" action="{{ url_for('citizen.ticket_detail', request_id=ticket.id) }}">
                         <div class="mb-3">
                             <label class="form-label fw-bold fs-7">Post Reply / Query</label>
