@@ -262,7 +262,7 @@
                 </div>
                 <div>
                     <h6 class="fw-bold mb-0">Mwananchi AI Agent</h6>
-                    <small class="text-white-50 fs-8">Murang'a County Intelligent Action Assistant</small>
+                    <small class="text-white-50 fs-8">Murang'a County Digital Officer</small>
                 </div>
             </div>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
@@ -272,20 +272,20 @@
             <!-- CHAT HISTORY BOX -->
             <div class="chat-box-body p-2" id="chatContainer">
                 <div class="chat-message-bot">
-                    Jambo{% if current_user.is_authenticated %} {{ current_user.full_name }}{% endif %}! I am Mwananchi AI Agent. You can ask me about county services, or tell me to lodge a service request ticket for you directly!
+                    Jambo{% if current_user.is_authenticated %} {{ current_user.full_name }}{% endif %}! I am Mwananchi AI Agent. Ask me anything about Murang'a leaders (Governor Kang'ata, MPs, Woman Rep, MCAs) or let me guide you step-by-step to create an account, lodge tickets, apply for business permits, or get bursaries!
                 </div>
             </div>
 
             <!-- QUICK ACTION PROMPTS -->
             <div class="d-flex gap-1 overflow-x-auto py-2 mb-2">
-                <button class="btn btn-sm btn-outline-secondary rounded-pill text-nowrap fs-8" onclick="sendQuickPrompt('Lodge a road request for a pothole at Main Market Gate')">Lodge Ticket for Me</button>
-                <button class="btn btn-sm btn-outline-secondary rounded-pill text-nowrap fs-8" onclick="sendQuickPrompt('What is the status of my recent service requests?')">My Ticket Status</button>
-                <button class="btn btn-sm btn-outline-secondary rounded-pill text-nowrap fs-8" onclick="sendQuickPrompt('What are the 7 constituencies in Murang\'a?')">County Constituencies</button>
+                <button class="btn btn-sm btn-outline-secondary rounded-pill text-nowrap fs-8" onclick="sendQuickPrompt('Help me create an account')">Create Account</button>
+                <button class="btn btn-sm btn-outline-secondary rounded-pill text-nowrap fs-8" onclick="sendQuickPrompt('Who are the elected leaders of Murang\'a County?')">County Leaders</button>
+                <button class="btn btn-sm btn-outline-secondary rounded-pill text-nowrap fs-8" onclick="sendQuickPrompt('Help me apply for a Single Business Permit')">Business Permit</button>
             </div>
 
             <!-- INPUT FORM -->
             <form id="mwananchiForm" onsubmit="handleAiChatSubmit(event)" class="d-flex gap-2">
-                <input type="text" id="aiInput" class="form-control fs-7" placeholder="Ask or tell Mwananchi AI to act..." required autocomplete="off">
+                <input type="text" id="aiInput" class="form-control fs-7" placeholder="Ask or answer Mwananchi AI..." required autocomplete="off">
                 <button type="submit" class="btn btn-navy px-3 rounded-3" id="aiSubmitBtn">
                     <i class="fa-solid fa-paper-plane text-warning"></i>
                 </button>
@@ -303,9 +303,11 @@
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Global Interface Engine & Mwananchi AI Chat Engine -->
+    <!-- Global Interface Engine & Mwananchi AI Multi-Turn Memory Chat Engine -->
     <script>
     let currentFontScale = 100;
+    // Client-side Conversational Memory Thread
+    let mwananchiChatThread = [];
 
     function adjustFontScale(delta) {
         currentFontScale += delta;
@@ -381,16 +383,30 @@
         container.appendChild(typingDiv);
         container.scrollTop = container.scrollHeight;
 
+        // Dispatch prompt along with conversational thread memory
         fetch("{{ url_for('citizen.mwananchi_ai_chat') }}", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ prompt: prompt })
+            body: JSON.stringify({ 
+                prompt: prompt,
+                history: mwananchiChatThread
+            })
         })
         .then(res => res.json())
         .then(data => {
             const indicator = document.getElementById('typingIndicator');
             if (indicator) indicator.remove();
+            
+            // Record turn into conversation thread
+            mwananchiChatThread.push({ role: 'user', text: prompt });
+            mwananchiChatThread.push({ role: 'assistant', text: data.response });
+
             appendChatMessage(data.response, false);
+            
+            // If account was created automatically during conversation, reload after brief pause
+            if (data.response.includes('Account created successfully')) {
+                setTimeout(() => { window.location.reload(); }, 2500);
+            }
         })
         .catch(() => {
             const indicator = document.getElementById('typingIndicator');

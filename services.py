@@ -28,49 +28,77 @@ def generate_otp_code():
     return str(random.randint(100000, 999999))
 
 
-# Autonomous Mwananchi AI Agent Dispatcher
+# Autonomous Mwananchi AI Agent Dispatcher with Conversational Memory & Up-To-Date Murang'a Leadership Knowledge
 
-def ask_mwananchi_groq_ai(user_prompt, user_context=None):
+def ask_mwananchi_groq_ai(user_prompt, chat_history=None, user_context=None):
     api_endpoint = "https://api.vinniedigitalhub.co.ke/ai/gpt"
 
-    # Strict System Persona and Fact Constraints
+    # Comprehensive Murang'a County Leadership & Governance Knowledge Base
     system_context = (
-        "You are Mwananchi AI, the official Autonomous AI Agent for the Murang'a County Government Public Service Board in Kenya. "
-        "Official Facts:\n"
-        "- Governor: H.E. Dr. Irungu Kang'ata.\n"
-        "- Deputy Governor: H.E. Stephen Munania.\n"
-        "- County Structure: 7 Constituencies (Kiharu, Kangema, Mathioya, Maragua, Kandara, Gatanga, Kigumo) and 35 Electoral Wards.\n"
-        "- Portal Scope: Infrastructure & Service Complaints, Single Business Permits (SBP), County Bursaries, Smart Parking, Land Rates, Public Service Board Careers/Recruitment, and Interactive Citizen-Admin Ticketing.\n"
-        "- Crucial Constraint: NEVER state or reference external AI providers (such as OpenAI, ChatGPT, Groq, or LLMs). Speak purely as the Murang'a County Digital Officer.\n"
-        "Category Codes:\n"
-        "- ROADS: Agri-Access & Roads\n"
-        "- LIGHTS: Streetlight Repairs\n"
-        "- WATER: Water Infrastructure & Sewage\n"
-        "- WASTE: Market Sanitation & Refuse\n"
-        "Action Rules:\n"
-        "1. If an unauthenticated guest requests account creation, collect their details and generate: [ACTION:REGISTER_USER|FULL_NAME|EMAIL|NATIONAL_ID|PHONE|PASSWORD|CONSTITUENCY|WARD]\n"
-        "2. If a user asks to lodge a ticket: [ACTION:CREATE_TICKET|CATEGORY_CODE|SPECIFIC_LOCATION|PROBLEM_DESCRIPTION]\n"
-        "3. If a user asks to apply for a business permit: [ACTION:APPLY_PERMIT|BUSINESS_NAME|BUSINESS_TYPE|LOCATION]\n"
-        "4. If a user asks to apply for a county bursary: [ACTION:APPLY_BURSARY|STUDENT_NAME|INSTITUTION|AMOUNT]\n"
-        "5. If a user asks to reply to an existing ticket: [ACTION:ADD_COMMENT|TICKET_ID|MESSAGE]\n"
+        "You are Mwananchi AI, the official Autonomous Digital Assistant for the Murang'a County Government Public Service Board in Kenya.\n\n"
+        "OFFICIAL MURANG'A COUNTY LEADERSHIP KNOWLEDGE BASE (Always use these current facts):\n"
+        "- Governor: H.E. Dr. Irungu Kang'ata\n"
+        "- Deputy Governor: H.E. Stephen Munania\n"
+        "- Senator: Hon. Joe Nyutu (Joseph Nyutu Ngugi)\n"
+        "- Woman Representative: Hon. Betty Maina (Beatrice Njeri Maina)\n"
+        "- County Assembly Speaker: Hon. Johnson Mukuha\n"
+        "- Deputy Speaker: Hon. Moses Gachui Mungai (Kihumbu-ini Ward)\n"
+        "- Majority Leader: Hon. Francis Kibe Kamau (Ithiru Ward)\n"
+        "- 7 Constituencies & Members of Parliament (MPs):\n"
+        "  1. Kiharu Constituency: Hon. Samson Ndindi Nyoro\n"
+        "  2. Kangema Constituency: Hon. Peter Irungu Kihungi\n"
+        "  3. Mathioya Constituency: Hon. Edwin Mugo Gichuki\n"
+        "  4. Maragua Constituency: Hon. Mary Wamaua Waithira\n"
+        "  5. Kandara Constituency: Hon. Chege Njuguna\n"
+        "  6. Gatanga Constituency: Hon. Edward Muriu\n"
+        "  7. Kigumo Constituency: Hon. Joseph Kamau Munyoro\n"
+        "- 35 Electoral Wards & Elected MCAs:\n"
+        "  * Kiharu: Township (Hon. Karina Machigo), Mbiri (Hon. Benard Ruiru), Gaturi (Hon. Njeri Gathee), Mugoiri (Hon. John Kamwaga), Murarandia (Hon. Peter Munga), Wangu (Hon. Margaret Gichia)\n"
+        "  * Kangema: Muguru (Hon. Moses Muchiri), Kanyenyaini (Hon. Grace Nduta), Rwathia (Hon. Kenneth Kamau)\n"
+        "  * Mathioya: Gitugi (Hon. Edwin Mwangi), Kiru (Hon. Morris Thuku), Kamacharia (Hon. Gerald Wambugu)\n"
+        "  * Maragua: Nginda (Hon. John Mwangi), Ichagaki (Hon. Hilary Muchoki), Makuyu (Hon. Thomas Muteti), Kambiti (Hon. Laban Chomba), Kamahuha (Hon. James Karanja), Muthithi (Hon. Boniface Mbau)\n"
+        "  * Kandara: Muruka (Hon. Peter Murigi), Ng'araria (Hon. Simon Wamwea), Ruchu (Hon. Naomi Maina), Gaichanjiru (Hon. John Munyua), Kagundi-ini (Hon. Samson Mukora), Ithiru (Hon. Francis Kibe)\n"
+        "  * Gatanga: Gatanga (Hon. John Kibaiya), Kihumbu-ini (Hon. Moses Gachui), Mugumo-ini (Hon. Alex Wainaina), Kariara (Hon. Clement Mbatia), Ithanga (Hon. Alex Makau), Kakuzi Mitumburi (Hon. Steven Kimani)\n"
+        "  * Kigumo: Kigumo (Hon. Caroline Njoroge), Kangari (Hon. Moses Mirara), Kinyona (Hon. Liz Mbugua), Kahumbu (Hon. Chefman Isaac), Kimorori Wempa (Hon. Elizabeth Mwangi)\n"
+        "- Department Categories & Codes: ROADS (Roads & Agri-Access), LIGHTS (Streetlights), WATER (Water & Sewage), WASTE (Market Sanitation).\n"
+        "- Portal Services: Service Requests, Single Business Permits (SBP), County Bursaries, Smart Parking, Land Rates, Public Service Recruitment.\n"
+        "- STRICT PERSONA RULE: NEVER mention third-party AI vendors, OpenAI, ChatGPT, Groq, or LLMs. Speak strictly as Murang'a County's official Digital Assistant.\n\n"
+        "INTERACTIVE ONE-BY-ONE CONVERSATIONAL FLOW:\n"
+        "1. Do NOT request all user information at once! Ask questions ONE BY ONE in a friendly, conversational tone.\n"
+        "2. For Account Registration: First ask for Full Name. Once answered, ask for Email. Next National ID, then Phone Number, Password, Constituency, and Ward.\n"
+        "3. For Service Tickets / Permits / Bursaries: Ask for missing details step by step.\n"
+        "4. Once ALL necessary fields have been collected across the conversation history, output the corresponding action tag at the very end of your response:\n"
+        "   - Account Registration: [ACTION:REGISTER_USER|FULL_NAME|EMAIL|NATIONAL_ID|PHONE|PASSWORD|CONSTITUENCY|WARD]\n"
+        "   - Service Ticket: [ACTION:CREATE_TICKET|CATEGORY_CODE|SPECIFIC_LOCATION|PROBLEM_DESCRIPTION]\n"
+        "   - Business Permit: [ACTION:APPLY_PERMIT|BUSINESS_NAME|BUSINESS_TYPE|LOCATION]\n"
+        "   - County Bursary: [ACTION:APPLY_BURSARY|STUDENT_NAME|INSTITUTION|AMOUNT]\n"
+        "   - Ticket Comment: [ACTION:ADD_COMMENT|TICKET_ID|MESSAGE]\n"
     )
 
     if user_context and user_context.get('is_logged_in'):
         context_str = (
-            f"Logged-in Citizen Profile:\n"
+            f"Active Logged-In Citizen Context:\n"
             f"- Name: {user_context.get('name')}\n"
             f"- Email: {user_context.get('email')}\n"
             f"- Phone: {user_context.get('phone')}\n"
             f"- Residence: {user_context.get('ward')} Ward, {user_context.get('constituency')} Constituency\n"
             f"- Phone Verified: {user_context.get('is_phone_verified')}\n"
             f"- Active Tickets: {', '.join(user_context.get('recent_tickets')) if user_context.get('recent_tickets') else 'None'}\n"
-            f"- Permits: {', '.join(user_context.get('permits')) if user_context.get('permits') else 'None'}\n"
+            f"- Business Permits: {', '.join(user_context.get('permits')) if user_context.get('permits') else 'None'}\n"
         )
         system_context += context_str
     else:
-        system_context += "Current User: Guest Visitor (Not logged in).\n"
+        system_context += "Current User Context: Guest Visitor (Not logged in).\n"
 
-    full_prompt = f"{system_context}\nUser Request: {user_prompt}"
+    # Assemble Conversational History Context
+    history_text = ""
+    if chat_history and isinstance(chat_history, list):
+        history_text = "\nRecent Conversation History:\n"
+        for msg in chat_history[-8:]:  # Include last 8 turns of conversation
+            role_label = "Citizen" if msg.get('role') == 'user' else "Mwananchi AI"
+            history_text += f"{role_label}: {msg.get('text', '')}\n"
+
+    full_prompt = f"{system_context}\n{history_text}\nCitizen Current Input: {user_prompt}"
 
     try:
         response = requests.get(
@@ -85,10 +113,10 @@ def ask_mwananchi_groq_ai(user_prompt, user_context=None):
                 return data["response"].strip()
 
         print(f"Mwananchi AI API Error ({response.status_code}): {response.text}")
-        return "Mwananchi AI Agent is currently updating county service pipelines. Please try again in a moment."
+        return "Mwananchi AI Agent is currently updating county service pipelines. Please try again shortly."
     except requests.RequestException as exc:
         print(f"Mwananchi AI connection error: {exc}")
-        return "Unable to establish connection with Mwananchi AI Agent servers. Please check your network."
+        return "Unable to establish connection with Mwananchi AI Agent server. Please check your network."
 
 
 # SMS & Email Services
@@ -106,7 +134,7 @@ def send_talksasa_otp(phone_number, otp_code, custom_message=None):
         message_text = f"Your Murang'a County Portal verification code is: {otp_code}. Valid for 10 minutes."
 
     if not api_token:
-        print(f"[SMS MOCK] Token missing | To: {formatted_phone} | Message: {message_text}")
+        print(f"[SMS MOCK] Token not configured | To: {formatted_phone} | Message: {message_text}")
         return True
 
     headers = {
@@ -135,7 +163,7 @@ def send_verification_email_smtp(to_email, verification_link):
     sender_email = os.environ.get('MAIL_DEFAULT_SENDER', 'Murang\'a County Portal <otp@vinniedigitalhub.co.ke>')
 
     if not api_key:
-        print(f"[EMAIL MOCK] API Key missing | To: {to_email} | Link: {verification_link}")
+        print(f"[EMAIL MOCK] API key missing | Link for {to_email}: {verification_link}")
         return True
 
     resend.api_key = api_key
@@ -148,7 +176,7 @@ def send_verification_email_smtp(to_email, verification_link):
         <div style="max-width: 600px; margin: 0 auto; background: #fff; border-radius: 10px; padding: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
             <h2 style="color: #002B49;">Murang'a County Government</h2>
             <p>Hello,</p>
-            <p>Please verify your email address to complete your registration on the Murang'a County Public Service Portal.</p>
+            <p>Please verify your email address to complete registration on the Murang'a County Public Service Portal.</p>
             <p style="text-align: center; margin: 30px 0;">
                 <a href="{verification_link}" style="background-color: #002B49; color: #fff; padding: 12px 28px; text-decoration: none; border-radius: 6px; font-weight: bold;">Verify Email Address</a>
             </p>
@@ -351,7 +379,7 @@ def complete_password_reset(user_id, submitted_otp, new_password):
     return False, "Invalid OTP code entered."
 
 
-# Expanded County Services (Tickets, Permits, Bursaries, Two-Way Comments)
+# Expanded County Services Operations
 
 def get_all_categories():
     return ServiceCategory.query.all()

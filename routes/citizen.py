@@ -74,6 +74,7 @@ def ticket_detail(request_id):
 def mwananchi_ai_chat():
     data = request.get_json() or {}
     user_prompt = data.get('prompt', '').strip()
+    chat_history = data.get('history', [])
 
     if not user_prompt:
         return jsonify({'response': 'Please enter a valid message or question.'}), 400
@@ -98,9 +99,9 @@ def mwananchi_ai_chat():
             'permits': permits_summary
         }
 
-    ai_response = services.ask_mwananchi_groq_ai(user_prompt, user_context=user_context)
+    ai_response = services.ask_mwananchi_groq_ai(user_prompt, chat_history=chat_history, user_context=user_context)
 
-    # 1. ACTION: REGISTER GUEST ACCOUNT
+    # 1. ACTION: REGISTER GUEST ACCOUNT (Fired once step-by-step interview completes)
     reg_match = re.search(r'\[ACTION:REGISTER_USER\|(.*?)\|(.*?)\|(.*?)\|(.*?)\|(.*?)\|(.*?)\|(.*?)\]', ai_response)
     if reg_match:
         fn, em, nid, ph, pw, con, wd = [g.strip() for g in reg_match.groups()]
@@ -108,18 +109,18 @@ def mwananchi_ai_chat():
         if new_u:
             login_user(new_u)
             services.send_talksasa_otp(new_u.phone, otp)
-            ai_response = re.sub(r'\[ACTION:REGISTER_USER\|.*?\]', f"\n\n**Action Executed:** I have successfully created your citizen account and logged you in, **{fn}**! Please check your SMS for the phone verification OTP.", ai_response)
+            ai_response = re.sub(r'\[ACTION:REGISTER_USER\|.*?\]', f"\n\n**Action Executed:** Account created successfully! Welcome to the portal, **{fn}**! You are now logged in. Check your phone for your SMS verification code.", ai_response)
         else:
-            ai_response = re.sub(r'\[ACTION:REGISTER_USER\|.*?\]', f"\n\n**Registration Failed:** {err}", ai_response)
+            ai_response = re.sub(r'\[ACTION:REGISTER_USER\|.*?\]', f"\n\n**Registration Notice:** {err}", ai_response)
 
-    # 2. ACTION: CREATE TICKET
+    # 2. ACTION: CREATE SERVICE TICKET
     ticket_match = re.search(r'\[ACTION:CREATE_TICKET\|(.*?)\|(.*?)\|(.*?)\]', ai_response)
     if ticket_match:
         cat_code, location, desc = [g.strip() for g in ticket_match.groups()]
         if not current_user.is_authenticated:
-            msg = "\n\nPlease log in or tell me your details to create an account so I can submit this ticket for you."
+            msg = "\n\nI can submit this ticket for you! Let us create your account first. What is your full name?"
         elif not current_user.is_phone_verified:
-            msg = "\n\nI prepared your ticket, but you must verify your phone number via SMS OTP before I can submit it."
+            msg = "\n\nI prepared your ticket, but you must verify your phone number via SMS OTP first before I can submit it."
         else:
             categories = services.get_all_categories()
             matched_cat = next((c for c in categories if c.code.upper() == cat_code.upper()), categories[0] if categories else None)
@@ -137,7 +138,7 @@ def mwananchi_ai_chat():
                 )
                 msg = f"\n\n**Action Executed:** Service request ticket lodged! **Ticket ID: {new_req.ticket_id}**."
             else:
-                msg = "\n\nUnable to match category."
+                msg = "\n\nUnable to match department category."
         ai_response = re.sub(r'\[ACTION:CREATE_TICKET\|.*?\]', msg, ai_response)
 
     # 3. ACTION: APPLY BUSINESS PERMIT
@@ -148,7 +149,7 @@ def mwananchi_ai_chat():
             p = services.create_business_permit(current_user.id, b_name, b_type, b_loc)
             msg = f"\n\n**Action Executed:** Single Business Permit application submitted! **Permit No: {p.permit_number}**."
         else:
-            msg = "\n\nPlease log in or create an account to apply for a business permit."
+            msg = "\n\nI can submit your Single Business Permit application! Let us set up your account first. What is your full name?"
         ai_response = re.sub(r'\[ACTION:APPLY_PERMIT\|.*?\]', msg, ai_response)
 
     # 4. ACTION: APPLY BURSARY
@@ -158,11 +159,11 @@ def mwananchi_ai_chat():
         if current_user.is_authenticated:
             try:
                 b = services.create_bursary_application(current_user.id, s_name, inst, float(amt))
-                msg = f"\n\n**Action Executed:** Bursary application submitted! **Application ID: {b.application_id}**."
+                msg = f"\n\n**Action Executed:** County Bursary application submitted! **Application ID: {b.application_id}**."
             except ValueError:
                 msg = "\n\nInvalid amount specified."
         else:
-            msg = "\n\nPlease log in to apply for county bursaries."
+            msg = "\n\nI can submit your bursary application! Let us create your account first. What is your full name?"
         ai_response = re.sub(r'\[ACTION:APPLY_BURSARY\|.*?\]', msg, ai_response)
 
     return jsonify({'response': ai_response})
