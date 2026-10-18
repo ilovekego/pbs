@@ -244,8 +244,8 @@ Install Python 3.10 or later and Git. Ensure the project dependencies are availa
 ### Step 1: Clone the Repository
 
 ```bash
-git clone https://github.com/muranga-county/public-service-portal.git
-cd public-service-portal
+git clone https://github.com/ilovekego/pbs
+cd pbs
 ```
 
 ### Step 2: Create a Virtual Environment
