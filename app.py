@@ -10,7 +10,13 @@ load_dotenv()
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'muranga-county-portal-secret-key-2026')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///database.db')
+
+# Fix Heroku Postgres URL prefix compatibility for SQLAlchemy 2.0+
+db_url = os.environ.get('DATABASE_URL', 'sqlite:///database.db')
+if db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = os.path.join('static', 'uploads')
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
@@ -47,7 +53,7 @@ with app.app_context():
 @app.route('/')
 def index():
     categories = services.get_all_categories()
-    _, analytics = services.get_admin_dashboard_metrics()
+    _, analytics, _, _ = services.get_admin_dashboard_metrics()
     return render_template('index.html', categories=categories, total=analytics['total'], resolved=analytics['resolved'])
 
 
